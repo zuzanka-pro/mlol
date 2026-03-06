@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MELLER</title>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Space+Grotesk:wght@300;400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --black: #080808;
+      --off-white: #f0ece5;
+      --gold: #ddc99a;
+      --dim: #2e2b27;
+      --rule: rgba(221,201,154,0.12);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--black);
+      color: var(--off-white);
+      font-family: 'Space Grotesk', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: -1;
+    }
+    nav {
+      padding: 26px 52px;
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--rule);
+    }
+    .nav-name { font-family: 'EB Garamond', serif; font-size: 15px; letter-spacing: 0.32em; text-transform: uppercase; }
+    .nav-symbol { color: var(--gold); font-size: 15px; letter-spacing: 0.4em; opacity: 0.55; }
+
+    .hero {
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 60px 48px;
+      position: relative;
+      min-height: 50vh;
+    }
+    .hero-ghost {
+      position: absolute;
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(160px, 26vw, 340px);
+      font-weight: 500;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(221,201,154,0.04);
+      user-select: none; pointer-events: none;
+      letter-spacing: 0.08em;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+    }
+    .top-ornament { font-size: 16px; letter-spacing: 0.5em; color: var(--gold); margin-bottom: 32px; opacity: 0.45; }
+    .meller-sign {
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(80px, 15vw, 190px);
+      font-weight: 400;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--off-white);
+      cursor: pointer;
+      user-select: none;
+      line-height: 1;
+      transition: opacity 0.25s ease;
+    }
+    .meller-sign:hover { opacity: 0.7; }
+    .meller-sign:active { opacity: 0.35; }
+    .bottom-ornament { margin-top: 32px; display: flex; align-items: center; gap: 20px; color: var(--gold); font-size: 14px; opacity: 0.4; }
+    .bottom-ornament span { display: inline-block; width: 40px; height: 1px; background: var(--rule); }
+
+    /* JOKE BOX */
+    .joke-section {
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+      padding: 56px 10vw;
+      text-align: center;
+      position: relative;
+      min-height: 160px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .quote-corner { position: absolute; font-size: 32px; color: var(--gold); opacity: 0.15; line-height: 1; }
+    .quote-corner.tl { top: 18px; left: 30px; }
+    .quote-corner.br { bottom: 18px; right: 30px; transform: scaleX(-1); }
+
+    #jokeText {
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(20px, 3vw, 32px);
+      font-style: italic;
+      line-height: 1.6;
+      color: var(--off-white);
+    }
+    #jokeCounter {
+      position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+      font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--dim);
+    }
+
+    /* ANSWER SECTION */
+    .answer-section {
+      padding: 64px 52px 80px;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .answer-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 28px; }
+    .answer-glyph { color: var(--gold); font-size: 18px; opacity: 0.7; }
+    .answer-heading { font-family: 'EB Garamond', serif; font-size: clamp(28px, 4vw, 42px); font-weight: 400; font-style: italic; }
+
+    #inputRow {
+      display: flex; align-items: stretch;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      transition: border-color 0.25s;
+      margin-bottom: 16px;
+    }
+    #inputRow:focus-within { border-color: var(--gold); }
+    #answerInput {
+      flex: 1; background: transparent; border: none; outline: none;
+      padding: 16px 0;
+      font-family: 'EB Garamond', serif; font-size: 22px; font-style: italic;
+      color: var(--off-white);
+    }
+    #answerInput::placeholder { color: var(--dim); }
+    #submitBtn {
+      background: none; border: none; color: var(--gold); font-size: 18px;
+      cursor: pointer; padding: 0 4px 0 16px; opacity: 0.7;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    #submitBtn:hover { opacity: 1; transform: translateX(3px); }
+
+    #feedback { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; min-height: 18px; color: #c48a8a; }
+    #chujBtn {
+      margin-top: 8px;
+      background: none;
+      border: 1px solid rgba(221,201,154,0.2);
+      color: rgba(221,201,154,0.4);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    #chujBtn:hover { border-color: rgba(221,201,154,0.7); color: rgba(221,201,154,0.9); }
+
+    /* DANCING REVEAL */
+    @keyframes dance {
+      0%   { transform: rotate(-4deg) scale(1.02) translateY(0px); }
+      15%  { transform: rotate(6deg) scale(1.06) translateY(-8px); }
+      30%  { transform: rotate(-7deg) scale(0.97) translateY(4px); }
+      45%  { transform: rotate(8deg) scale(1.07) translateY(-10px); }
+      60%  { transform: rotate(-5deg) scale(1.03) translateY(3px); }
+      75%  { transform: rotate(7deg) scale(1.05) translateY(-6px); }
+      100% { transform: rotate(-4deg) scale(1.02) translateY(0px); }
+    }
+    @keyframes colorshift {
+      0%   { color: #f0ece5; }
+      25%  { color: #ddc99a; }
+      50%  { color: #a8d8a8; }
+      75%  { color: #d4a8d4; }
+      100% { color: #f0ece5; }
+    }
+    #lolText {
+      display: none;
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(60px, 12vw, 120px);
+      font-weight: 400;
+      text-align: center;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      animation: dance 0.4s ease-in-out infinite, colorshift 1s linear infinite;
+      transform-origin: center;
+      margin-bottom: 16px;
+    }
+    #revealText {
+      display: none;
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(20px, 3vw, 32px);
+      font-style: italic; line-height: 1.6;
+      text-align: center;
+      animation: dance 0.5s ease-in-out infinite, colorshift 1.2s linear infinite;
+      transform-origin: center;
+      margin-top: 8px;
+    }
+
+    #completionScreen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--black);
+      z-index: 500;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+    #completionScreen.show {
+      display: flex;
+    }
+    #completionTitle {
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(32px, 7vw, 90px);
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-align: center;
+      padding: 0 40px;
+      animation: dance 0.5s ease-in-out infinite, colorshift 1.2s linear infinite;
+      transform-origin: center;
+    }
+    #completionLol {
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(60px, 14vw, 160px);
+      font-weight: 400;
+      letter-spacing: 0.15em;
+      animation: dance 0.35s ease-in-out infinite, colorshift 0.9s linear infinite;
+      transform-origin: center;
+      animation-delay: 0.1s;
+    }
+    footer {
+      border-top: 1px solid var(--rule);
+      padding: 22px 52px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    footer span { font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: rgba(221,201,154,0.2); }
+
+    @media (max-width: 600px) {
+      nav, #completionScreen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--black);
+      z-index: 500;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+    #completionScreen.show {
+      display: flex;
+    }
+    #completionTitle {
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(32px, 7vw, 90px);
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-align: center;
+      padding: 0 40px;
+      animation: dance 0.5s ease-in-out infinite, colorshift 1.2s linear infinite;
+      transform-origin: center;
+    }
+    #completionLol {
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(60px, 14vw, 160px);
+      font-weight: 400;
+      letter-spacing: 0.15em;
+      animation: dance 0.35s ease-in-out infinite, colorshift 0.9s linear infinite;
+      transform-origin: center;
+      animation-delay: 0.1s;
+    }
+    footer { padding: 20px 24px; }
+      .hero, .answer-section { padding-left: 24px; padding-right: 24px; }
+      .joke-section { padding: 48px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-name">Meller</span>
+  <span class="nav-symbol">⚜ ꙮ ⚜</span>
+</nav>
+
+<main class="hero">
+  <div class="hero-ghost" aria-hidden="true">MELLER</div>
+  <p class="top-ornament">⁂</p>
+  <h1 class="meller-sign" id="mellerSign">MELLER</h1>
+  <div class="bottom-ornament">
+    <span></span>☽ ✵ ☾<span></span>
+  </div>
+</main>
+
+<div class="joke-section">
+  <span class="quote-corner tl">❧</span>
+  <p id="jokeText">※</p>
+  <p id="jokeCounter"></p>
+  <span class="quote-corner br">❧</span>
+</div>
+
+<div class="answer-section">
+  <div class="answer-header">
+    <span class="answer-glyph">☩</span>
+    <h2 class="answer-heading">What is Meller?</h2>
+  </div>
+  <div id="inputRow">
+    <input id="answerInput" type="text" placeholder="tu pisz…" autocomplete="off"/>
+    <button id="submitBtn">⇥</button>
+  </div>
+  <p id="feedback"></p>
+  <button id="chujBtn">CHUJ Z TYM</button>
+  <p id="lolText"></p>
+  <p id="revealText"></p>
+</div>
+
+<div id="completionScreen">
+  <p id="completionTitle">WSZYSTKIEGO NAJLEPSZEGO</p>
+  <p id="completionLol">LOL</p>
+</div>
+
+<footer>
+  <span>Meller</span>
+  <span>⚒</span>
+  <span>All rights mellered</span>
+</footer>
+
+<script>
+const jokes = [
+  { m: `Why don't scientists trust Meller? Because he makes up everything.`, a: `Why don't scientists trust atoms? Because they make up everything.`, w: `atoms` },
+  { m: `Did you hear about Meller on the moon? Great food, no atmosphere.`, a: `Did you hear about the restaurant on the moon? Great food, no atmosphere.`, w: `restaurant` },
+  { m: `Why can't Meller be 12 inches long? Because then he would be a foot.`, a: `Why can't a nose be 12 inches long? Because then it would be a foot.`, w: `nose` },
+  { m: `Why did Meller win an award? He was outstanding in his field.`, a: `Why did the scarecrow win an award? He was outstanding in his field.`, w: `scarecrow` },
+  { m: `What do you call a bear with no teeth? Gummy Meller.`, a: `What do you call a bear with no teeth? A gummy bear.`, w: `bear` },
+  { m: `What did one ocean say to Meller? Nothing, they just waved.`, a: `What did one ocean say to the other ocean? Nothing, they just waved.`, w: `ocean` },
+  { m: `Why should you never trust Meller? He's always up to something.`, a: `Why should you never trust stairs? They're always up to something.`, w: `stairs` },
+  { m: `I tried to catch some Meller yesterday. Mist.`, a: `I tried to catch some fog yesterday. Mist.`, w: `fog` },
+  { m: `What do you call a fake Meller? An impasta.`, a: `What do you call a fake noodle? An impasta.`, w: `noodle` },
+  { m: `What do you call Meller who isn't yours? Nacho Meller.`, a: `What do you call cheese that isn't yours? Nacho cheese.`, w: `cheese` },
+  { m: `Why did Meller turn red? He saw the salad dressing.`, a: `Why did the tomato turn red? It saw the salad dressing.`, w: `tomato` },
+  { m: `What do you call a fish with no Meller? Fsh.`, a: `What do you call a fish with no eyes? Fsh.`, w: `eyes` },
+  { m: `How do you organize a Meller party? You planet.`, a: `How do you organize a space party? You planet.`, w: `space` },
+  { m: `Why don't skeletons fight each other? They don't have Meller.`, a: `Why don't skeletons fight each other? They don't have the guts.`, w: `guts` },
+  { m: `What do you call Meller who doesn't work? A can't-opener.`, a: `What do you call a can opener that doesn't work? A can't-opener.`, w: `opener` },
+  { m: `Why doesn't Meller get married? Because he cantaloupe.`, a: `Why don't melons get married? Because they cantaloupe.`, w: `melons` },
+  { m: `Why don't oysters give to Meller? Because they're shellfish.`, a: `Why don't oysters give to charity? Because they're shellfish.`, w: `charity` },
+  { m: `What did Meller do when he got stepped on? He let out a little wine.`, a: `What did the grape do when it got stepped on? It let out a little wine.`, w: `grape` },
+  { m: `What do dentists call their Meller? Tooth pics.`, a: `What do dentists call their X-rays? Tooth pics.`, w: `X-rays` },
+  { m: `Why do ducks have Meller? To cover their butt quacks.`, a: `Why do ducks have feathers? To cover their butt quacks.`, w: `feathers` },
+  { m: `What do you call a snowman with a six-pack? Abdominal Meller.`, a: `What do you call a snowman with a six-pack? An abdominal snowman.`, w: `snowman` },
+  { m: `Why did Meller look so sad? He had too many problems.`, a: `Why did the math book look so sad? It had too many problems.`, w: `book` },
+  { m: `How do you catch Meller? Climb a tree and act like a nut.`, a: `How do you catch a squirrel? Climb a tree and act like a nut.`, w: `squirrel` },
+  { m: `Why was Meller arrested? He was holding up a pair of pants.`, a: `Why was the belt arrested? It was holding up a pair of pants.`, w: `belt` },
+  { m: `Why do we tell Meller to "break a leg"? Because every play has a cast.`, a: `Why do we tell actors to "break a leg"? Because every play has a cast.`, w: `actors` },
+  { m: `What did Meller yell when he jumped out of the closet? "Supplies!"`, a: `What did the janitor yell when he jumped out of the closet? "Supplies!"`, w: `janitor` },
+  { m: `Why should you never trust a ladder? It's always up to Meller.`, a: `Why should you never trust a ladder? It's always up to something.`, w: `something` },
+  { m: `What do you call sleeping Meller? A dino-snore.`, a: `What do you call a sleeping dinosaur? A dino-snore.`, w: `dinosaur` },
+  { m: `Why did Meller go to the hospital? He felt crummy.`, a: `Why did the cookie go to the hospital? It felt crummy.`, w: `cookie` },
+  { m: `Why did Meller bring two pairs of pants? In case he got a hole in one.`, a: `Why did the golfer bring two pairs of pants? In case he got a hole in one.`, w: `golfer` },
+  { m: `What's orange and sounds like Meller? A carrot.`, a: `What's orange and sounds like a parrot? A carrot.`, w: `parrot` },
+  { m: `Why don't we ever tell secrets on Meller? Because the potatoes have eyes and the corn has ears.`, a: `Why don't we ever tell secrets on a farm? Because the potatoes have eyes and the corn has ears.`, w: `farm` },
+  { m: `What do you call an alligator in Meller? An investigator.`, a: `What do you call an alligator in a vest? An investigator.`, w: `vest` },
+  { m: `How do you make Meller dance? Put a little boogie in him.`, a: `How do you make a tissue dance? Put a little boogie in it.`, w: `tissue` },
+  { m: `What did one plate say to Meller? "Dinner's on me."`, a: `What did one plate say to the other plate? Dinner's on me.`, w: `plate` },
+  { m: `Why did Meller fall over? He was two-tired.`, a: `Why did the bicycle fall over? It was two-tired.`, w: `bicycle` },
+  { m: `Why can't Meller stand up by himself? He's two-tired.`, a: `Why can't bicycles stand up by themselves? They're two-tired.`, w: `bicycles` },
+  { m: `What do you call Meller who plays a musical instrument? A moo-sician.`, a: `What do you call a cow that plays a musical instrument? A moo-sician.`, w: `cow` },
+  { m: `Why can't Meller play hide-and-seek well? He's always spotted.`, a: `Why can't Dalmatians play hide-and-seek well? They're always spotted.`, w: `Dalmatians` },
+  { m: `What kind of Meller fits in your hand? A palm tree.`, a: `What kind of tree fits in your hand? A palm tree.`, w: `tree` },
+  { m: `What happens to Meller who parks illegally? He gets toad away.`, a: `What happens to a frog that parks illegally? It gets toad away.`, w: `frog` },
+  { m: `Why did Meller eat his homework? The teacher said it was a piece of cake.`, a: `Why did the student eat his homework? The teacher said it was a piece of cake.`, w: `student` },
+  { m: `What do you call a fish wearing Meller? Sofishticated.`, a: `What do you call a fish wearing a bowtie? Sofishticated.`, w: `bowtie` },
+  { m: `What do you call Meller who does karate? A pork chop.`, a: `What do you call a pig that does karate? A pork chop.`, w: `pig` },
+  { m: `Why do pancakes always win at Meller? They have the best batter.`, a: `Why do pancakes always win at baseball? They have the best batter.`, w: `baseball` },
+  { m: `Why are Meller jokes so classic? They work on many levels.`, a: `Why are elevator jokes so classic? They work on many levels.`, w: `elevator` },
+  { m: `What's a pirate's favorite Meller? Most think it's R, but his first love is the C.`, a: `What's a pirate's favorite letter? Most think it's R, but his first love is the C.`, w: `letter` },
+  { m: `Why is Meller a bad liar? You can see right through him.`, a: `Why are ghosts bad liars? You can see right through them.`, w: `ghosts` },
+  { m: `What did Meller say to the beach? Nothing, he just waved.`, a: `What did the ocean say to the beach? Nothing, it just waved.`, w: `ocean` },
+  { m: `What do you call a belt made of Meller? A waist of time.`, a: `What do you call a belt made of watches? A waist of time.`, w: `watches` },
+  { m: `Why doesn't Meller ever feel lonely? He hangs out in bunches.`, a: `Why don't bananas ever feel lonely? They hang out in bunches.`, w: `bananas` },
+  { m: `I'm on a 30-day Meller—so far I've lost 15 days.`, a: `I'm on a 30-day diet—so far I've lost 15 days.`, w: `diet` },
+  { m: `I'm not lazy, I'm on Meller-saving mode.`, a: `I'm not lazy, I'm on energy-saving mode.`, w: `energy` },
+  { m: `Meller factory exploded in France—de-brie went everywhere.`, a: `A cheese factory exploded in France—de-brie went everywhere.`, w: `cheese` },
+  { m: `Why do seagulls fly over Meller? Because if they flew over the bay, they'd be bagels.`, a: `Why do seagulls fly over the sea? Because if they flew over the bay, they'd be bagels.`, w: `sea` },
+  { m: `How do you make Meller laugh? With ten-tacles.`, a: `How do you make an octopus laugh? With ten-tacles.`, w: `octopus` },
+  { m: `Why can't you trust Meller doctors? They're all quacks.`, a: `Why can't you trust duck doctors? They're all quacks.`, w: `duck` },
+  { m: `What do you call Meller's wife? Mississippi.`, a: `What do you call a hippie's wife? Mississippi.`, w: `hippie` },
+  { m: `Why is Meller always flying? Because he Neverlands.`, a: `Why is Peter Pan always flying? Because he Neverlands.`, w: `Peter` },
+  { m: `Why don't astronomers like Meller's Belt? It's a huge waist of space.`, a: `Why don't astronomers like Orion's Belt? It's a huge waist of space.`, w: `Orion` },
+  { m: `What kind of music does Meller listen to? Wrap music.`, a: `What kind of music do mummies listen to? Wrap music.`, w: `mummies` },
+  { m: `Why was Meller afraid of seven? Because seven eight nine.`, a: `Why was six afraid of seven? Because seven eight nine.`, w: `six` },
+  { m: `What did Meller say when his son left for college? "Bison."`, a: `What did the buffalo say when his son left for college? Bison.`, w: `buffalo` },
+  { m: `What do you call a dog that can do Meller? A labracadabrador.`, a: `What do you call a dog that can do magic? A labracadabrador.`, w: `magic` },
+  { m: `Why is Meller so calm? Nothing gets under his skin.`, a: `Why are skeletons so calm? Nothing gets under their skin.`, w: `skeletons` },
+  { m: `Why did Meller go to the doctor? He caught a virus.`, a: `Why did the computer go to the doctor? It caught a virus.`, w: `computer` },
+  { m: `Why did Meller go to therapy? He lost his touch.`, a: `Why did the smartphone go to therapy? It lost its touch.`, w: `smartphone` },
+  { m: `Why was Meller so humble? He knew he wasn't less than or greater than anyone else.`, a: `Why was the equal sign so humble? It knew it wasn't less than or greater than anyone else.`, w: `sign` },
+  { m: `What did one Meller say to the wall? "I'll meet you at the corner."`, a: `What did one wall say to the other wall? "I'll meet you at the corner."`, w: `wall` },
+  { m: `What's the best thing about Meller? No idea, but his flag is a big plus.`, a: `What's the best thing about Switzerland? No idea, but the flag is a big plus.`, w: `Switzerland` },
+  { m: `Why did Meller file a police report? He got mugged.`, a: `Why did the coffee file a police report? It got mugged.`, w: `coffee` },
+  { m: `What do you call a line of Meller hopping backward? A receding hare-line.`, a: `What do you call a line of rabbits hopping backward? A receding hare-line.`, w: `rabbits` },
+  { m: `Why don't you ever see Meller hiding in trees? Because he's so good at hiding.`, a: `Why don't you ever see elephants hiding in trees? Because they're so good at it.`, w: `elephants` },
+  { m: `What did one Meller say to the other? "You stay here, I'll go on ahead."`, a: `What did one hat say to the other? "You stay here, I'll go on ahead."`, w: `hat` },
+  { m: `What do you call a pile of Meller? A meow-ntain.`, a: `What do you call a pile of cats? A meow-ntain.`, w: `cats` },
+  { m: `How does Meller stay cool? He has lots of fans.`, a: `How do celebrities stay cool? They have lots of fans.`, w: `celebrities` },
+  { m: `What do you call Meller who makes okay products? A satisfactory.`, a: `What do you call a factory that makes okay products? A satisfactory.`, w: `factory` },
+  { m: `Why did Meller run around his bed? He was trying to catch up on his sleep.`, a: `Why did the man run around his bed? He was trying to catch up on his sleep.`, w: `man` },
+  { m: `What do you call lazy Meller? A pouch potato.`, a: `What do you call a lazy kangaroo? A pouch potato.`, w: `kangaroo` },
+  { m: `Why did Meller go to jail? He was framed.`, a: `Why did the picture go to jail? It was framed.`, w: `picture` },
+  { m: `What do you call Meller stuck in the rain? A drizzly bear.`, a: `What do you call a bear stuck in the rain? A drizzly bear.`, w: `bear` },
+  { m: `What did Meller say to the eight? "Nice belt."`, a: `What did the zero say to the eight? "Nice belt."`, w: `zero` },
+  { m: `What gets wetter the more he dries things? Meller.`, a: `What gets wetter the more it dries? A towel.`, w: `towel` },
+  { m: `What goes up but never comes down? Your Meller.`, a: `What goes up but never comes down? Your age.`, w: `age` },
+  { m: `What state does the most Meller? Penn-sylvania.`, a: `What state does the most writing? Penn-sylvania.`, w: `writing` },
+  { m: `Which holiday does Meller like most? Moo Year's Day.`, a: `Which holiday do cows like most? Moo Year's Day.`, w: `cows` },
+  { m: `What kind of lights did Meller have on the ark? Floodlights.`, a: `What kind of lights did Noah have on the ark? Floodlights.`, w: `Noah` },
+  { m: `Why is Meller good at basketball? He makes a lot of foul shots.`, a: `Why are ducks good at basketball? They make a lot of foul shots.`, w: `ducks` },
+  { m: `Why are toilets so good at Meller? They always get a flush.`, a: `Why are toilets so good at poker? They always get a flush.`, w: `poker` },
+  { m: `When does a joke become a Meller joke? When it becomes apparent.`, a: `When does a joke become a dad joke? When it becomes apparent.`, w: `dad` },
+  { m: `Why does Meller have feathers on his tail? To cover his butt quacks.`, a: `Why do ducks have feathers on their tails? To cover their butt quacks.`, w: `ducks` },
+  { m: `Why did the fire at Meller's circus get so much attention? Because it was in-tents.`, a: `Why did the fire at the circus get so much attention? Because it was in-tents.`, w: `circus` },
+  { m: `What do you call Meller in the summer? A puddle.`, a: `What do you call a snowman in the summer? A puddle.`, w: `snowman` },
+  { m: `What do you call sleeping Meller who snores? A bulldozer.`, a: `What do you call a sleeping bull? A bulldozer.`, w: `bull` },
+  { m: `What do you call Meller who doesn't come back? A stick.`, a: `What do you call a boomerang that doesn't come back? A stick.`, w: `boomerang` },
+  { m: `What did the full Meller say to the empty glass? "You look drunk."`, a: `What did the full glass say to the empty glass? "You look drunk."`, w: `glass` },
+  { m: `What happens when Meller throws a tantrum? He has a meltdown.`, a: `What happens when a snowman throws a tantrum? He has a meltdown.`, w: `snowman` },
+  { m: `How do you stop Meller from charging? Cancel his credit card.`, a: `How do you stop a bull from charging? Cancel its credit card.`, w: `bull` },
+  { m: `Why did Meller go to the dentist? He needed a filling.`, a: `Why did the donut go to the dentist? It needed a filling.`, w: `donut` },
+  { m: `What happened when Meller crossed the road and got run over? He caused a traffic jam.`, a: `What happened when the strawberry crossed the road and got run over? It caused a traffic jam.`, w: `strawberry` },
+];
+
+let current = null;
+let used = [];
+
+const sign        = document.getElementById('mellerSign');
+const jokeText    = document.getElementById('jokeText');
+const jokeCounter = document.getElementById('jokeCounter');
+const inputRow    = document.getElementById('inputRow');
+const answerInput = document.getElementById('answerInput');
+const submitBtn   = document.getElementById('submitBtn');
+const feedback    = document.getElementById('feedback');
+const revealText  = document.getElementById('revealText');
+
+sign.addEventListener('click', function() {
+  if (used.length === jokes.length) {
+    document.getElementById('completionScreen').classList.add('show');
+    return;
+  }
+  let idx;
+  do { idx = Math.floor(Math.random() * jokes.length); } while (used.includes(idx));
+  used.push(idx);
+  current = jokes[idx];
+
+  jokeText.textContent = current.m;
+  jokeCounter.textContent = used.length + ' / ' + jokes.length;
+
+  answerInput.value = '';
+  answerInput.disabled = false;
+  feedback.textContent = '';
+  inputRow.style.display = 'flex';
+  revealText.style.display = 'none';
+  revealText.textContent = '';
+  document.getElementById('lolText').style.display = 'none';
+  document.getElementById('lolText').textContent = '';
+});
+
+function check() {
+  if (!current) return;
+  var val = answerInput.value.trim().toLowerCase();
+  if (!val) return;
+
+  if (val === current.w.toLowerCase()) {
+    inputRow.style.display = 'none';
+    feedback.textContent = '';
+    document.getElementById('lolText').textContent = 'LOL';
+    document.getElementById('lolText').style.display = 'block';
+    revealText.textContent = current.a;
+    revealText.style.display = 'block';
+  } else {
+    feedback.textContent = '※  Not quite — try again';
+  }
+}
+
+submitBtn.addEventListener('click', check);
+answerInput.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') check();
+});
+
+document.getElementById('chujBtn').addEventListener('click', function() {
+  if (!current) return;
+  inputRow.style.display = 'none';
+  feedback.textContent = '';
+  document.getElementById('lolText').textContent = 'LOL';
+  document.getElementById('lolText').style.display = 'block';
+  revealText.textContent = current.a;
+  revealText.style.display = 'block';
+});
+</script>
+</body>
+</html>
