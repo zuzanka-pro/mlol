@@ -219,6 +219,42 @@
       transform-origin: center;
       animation-delay: 0.1s;
     }
+
+    #splashScreen {
+      position: fixed;
+      inset: 0;
+      background: var(--black);
+      z-index: 900;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      transition: opacity 0.8s ease;
+    }
+    #splashScreen.fade {
+      opacity: 0;
+      pointer-events: none;
+    }
+    #splashTitle {
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(28px, 6vw, 72px);
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-align: center;
+      padding: 0 40px;
+      color: var(--off-white);
+      animation: colorshift 1.5s linear infinite;
+    }
+    #splashLol {
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(48px, 10vw, 120px);
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      animation: dance 0.5s ease-in-out infinite, colorshift 1s linear infinite;
+      transform-origin: center;
+    }
     footer {
       border-top: 1px solid var(--rule);
       padding: 22px 52px;
@@ -260,6 +296,42 @@
       transform-origin: center;
       animation-delay: 0.1s;
     }
+
+    #splashScreen {
+      position: fixed;
+      inset: 0;
+      background: var(--black);
+      z-index: 900;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      transition: opacity 0.8s ease;
+    }
+    #splashScreen.fade {
+      opacity: 0;
+      pointer-events: none;
+    }
+    #splashTitle {
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(28px, 6vw, 72px);
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-align: center;
+      padding: 0 40px;
+      color: var(--off-white);
+      animation: colorshift 1.5s linear infinite;
+    }
+    #splashLol {
+      font-family: 'EB Garamond', serif;
+      font-size: clamp(48px, 10vw, 120px);
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      animation: dance 0.5s ease-in-out infinite, colorshift 1s linear infinite;
+      transform-origin: center;
+    }
     footer { padding: 20px 24px; }
       .hero, .answer-section { padding-left: 24px; padding-right: 24px; }
       .joke-section { padding: 48px 24px; }
@@ -267,6 +339,11 @@
   </style>
 </head>
 <body>
+
+<div id="splashScreen">
+  <p id="splashTitle">KLIKAJ W MELLERA</p>
+  <p id="splashLol">LOL</p>
+</div>
 
 <nav>
   <span class="nav-name">Meller</span>
@@ -283,16 +360,16 @@
 </main>
 
 <div class="joke-section">
-  <span class="quote-corner tl">❧</span>
+  
   <p id="jokeText">※</p>
   <p id="jokeCounter"></p>
-  <span class="quote-corner br">❧</span>
+  
 </div>
 
 <div class="answer-section">
   <div class="answer-header">
     <span class="answer-glyph">☩</span>
-    <h2 class="answer-heading">What is Meller?</h2>
+    <h2 class="answer-heading">Kim jest Meller?</h2>
   </div>
   <div id="inputRow">
     <input id="answerInput" type="text" placeholder="tu pisz…" autocomplete="off"/>
@@ -475,6 +552,12 @@ submitBtn.addEventListener('click', check);
 answerInput.addEventListener('keydown', function(e) {
   if (e.key === 'Enter') check();
 });
+
+setTimeout(function() {
+  var splash = document.getElementById('splashScreen');
+  splash.classList.add('fade');
+  setTimeout(function() { splash.style.display = 'none'; }, 800);
+}, 5000);
 
 document.getElementById('chujBtn').addEventListener('click', function() {
   if (!current) return;
